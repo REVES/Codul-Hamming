@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Codul Hamming</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+
+    <script type="text/javascript">
+
+        function hamming(nrCanal = 1, mesaj = '', pozitiaIronata = 1) {
+
+            console.clear();
+
+            //const nrCanaleMax = 7;
+
+            /*if (nrCanal > nrCanaleMax) {
+
+                console.log(`Nr. maxim de canale este ${nrCanaleMax} !`);
+                
+                return;
+
+            }*/
+
+            var canalAdresa = nrCanal.toString(2);
+
+            console.log('Se dă:')
+            console.log(`-> Cod canal adresă: "${canalAdresa}"`);
+            console.log(`-> Mesaj: "${mesaj}"`);
+            console.log('');
+            console.log('Codificare:');
+
+            var i = mesaj.length;
+
+            //var mesaj = canalAdresa + mesaj;
+
+            //console.log(`-> Mesaj cu cod adresă în față: "${mesaj}"`);
+
+            var k = mesaj.length;
+
+            function nrSimboluriControl(k) {
+                let c = 1;
+
+                while (!(Math.pow(2,c) >= k + c + 1)) c++;
+
+                return c;
+            }
+
+            var c = nrSimboluriControl(k);
+            var n = k + c;
+
+            console.log(`-> i = ${i}; k = i+a = ${k}; c = ${c}; n = k+c = ${n}`);
+
+            var mesajVector = [];
+
+            for (var i=0, l=0, m=0; i<n; i++) {
+
+                if (i == Math.pow(2,l)-1) {
+                    
+                    mesajVector[i] = 'c' + ++l;
+
+                    continue;
+
+                }
+
+                mesajVector[i] = parseInt(mesaj[m++], 10);
+
+            }
+
+            console.log('-> Cuvântul de cod "V" va fi de forma:');
+            console.log(mesajVector);
+
+            var tabel = [];
+
+            for (var i=0, sum=0; i<n; i++, sum=0) {
+                
+                tabel[i] = [];
+
+                for (var j=0; j<c; j++) {
+
+                    var val = Math.pow(2, c-j-1);
+
+                    if (sum + val <= i+1) {
+                        
+                        tabel[i][j] = 1;
+                        sum += val;
+
+                    } else {
+                        
+                        tabel[i][j] = 0;
+                        
+                    }
+
+                }
+
+            }
+
+            for (var i=0; i<n; i++) {
+
+                tabel[i][c] = mesajVector[i];
+
+            }
+
+            console.log('-> Tabelul construit pentru determinarea simbolurilor de control este:');
+            console.table(tabel);
+
+            var ceuri = [];
+
+            for (var i=0; i<c; i++) {
+
+                for (var ii=0, l=0; ii<n; ii++) { // parcurg pozitiile "i"
+
+                    if (ii != Math.pow(2,l)-1) {
+                        
+                        ++l;
+                        
+                        if (tabel[ii][c-i-1]) {
+
+                            if (typeof ceuri[i] === 'undefined') {
+
+                                ceuri[i] = mesajVector[ii];
+                                
+                                continue;
+
+                            }
+
+                            ceuri[i] ^= mesajVector[ii];
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+            console.log('-> Simbolurile de control determinate sunt:');
+            console.log(ceuri);
+
+            for (var i=0, l=0, m=0; i<n; i++) {
+
+                if (i == Math.pow(2,l)-1) {
+                    
+                    l++;
+
+                    mesajVector[i] = ceuri[m++];
+
+                }
+
+            }
+
+            console.log('-> Cuvântul de cod "V" obținut este:');
+            console.log(mesajVector);
+            console.log('');
+
+            mesajVector[pozitiaIronata-1] = +!mesajVector[pozitiaIronata-1];
+            
+            console.log('Transmitere:');
+            console.log(`-> S-a ironat bitul de pe poziția ${pozitiaIronata} și cuvântul de cod "V" devine:`);
+            console.log(mesajVector);
+            console.log('');
+
+            var H = [];
+
+            for (var i=0; i<c; i++) H[i] = [];
+
+            for (var j=0, sum=0; j<n; j++, sum=0) {
+                
+                for (var i=0; i<c; i++) {
+
+                    var val = Math.pow(2, c-i-1);
+
+                    if (sum + val <= j+1) {
+
+                        H[i][j] = 1;
+                        sum += val;
+
+                    } else {
+
+                        H[i][j] = 0;
+
+                    }
+
+                }   
+
+            }
+
+            console.log('Decodificare:');
+            console.log('-> Matricea de control H, construită pentru determinarea vectorului de control este:');
+            console.table(H);
+
+            var zeturi = [];
+
+            for (var i=0; i<c; i++) {
+
+                for (var j=0; j<n; j++) {
+
+                    if (H[i][j]) {
+
+                        if (typeof zeturi[i] === 'undefined') {
+
+                            zeturi[i] = mesajVector[j];
+                            
+                            continue;
+
+                        }
+
+                        zeturi[i] ^= mesajVector[j];
+
+                    }
+
+                }
+
+            }
+
+            console.log('-> Vectorul de control obținut este:');
+            console.log(zeturi);
+
+            var pozitiaIronataDetectata = 0;
+
+            for (var i=0; i<c; i++) {
+
+                if (zeturi[i]) {
+
+                    pozitiaIronataDetectata += Math.pow(2, c-i-1);
+
+                }
+
+            }
+
+            console.log(`-> Poziția ironata detectată este "${pozitiaIronataDetectata}":`);
+
+            console.log(mesajVector);
+
+            console.log('-> După corectare, cuvântul de cod "V" devine:');
+
+            mesajVector[pozitiaIronataDetectata-1] = +!mesajVector[pozitiaIronataDetectata-1];
+
+            console.log(mesajVector);
+            console.log('');
+            console.log('Sfârșitul execuției.');
+
+        }
+
+        console.log('>>> Codul Hamming <<<');
+        console.log('Funcția care stă la dispoziția utilizatorului este "hamming(int numarCanal, string mesaj, int pozitiaIronata)".');
+        console.log('Exemplu de utilizare: "hamming(4, \'00110\', 2)"');
+
+    </script>
+</body>
+</html>
