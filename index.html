@@ -9,22 +9,34 @@
 <body>
 
     <script type="text/javascript">
-
-        function hamming(nrCanal = 1, mesaj = '', pozitiaIronata = 1) {
+    console.log(!'wqe');
+        function hamming(nrMaximCanale=1, nrCanal = 0, mesaj = '', pozitiaIronata = 1) {
 
             console.clear();
 
-            //const nrCanaleMax = 7;
+            if (nrCanal+1 > nrMaximCanale) {
 
-            /*if (nrCanal > nrCanaleMax) {
-
-                console.log(`Nr. maxim de canale este ${nrCanaleMax} !`);
+                console.log(`Nr. maxim de canale este ${nrMaximCanale} !`);
                 
                 return;
 
-            }*/
+            }
 
             var canalAdresa = nrCanal.toString(2);
+            
+            var a = 1;
+
+            while (Math.pow(2, a) < nrMaximCanale) {
+
+                a++;
+
+            }
+
+            while (canalAdresa.length < a) {
+
+                canalAdresa = '0' + canalAdresa;
+
+            }
 
             console.log('Se dă:')
             console.log(`-> Cod canal adresă: "${canalAdresa}"`);
@@ -34,11 +46,11 @@
 
             var i = mesaj.length;
 
-            //var mesaj = canalAdresa + mesaj;
+            var mesaj = canalAdresa + mesaj;
 
-            //console.log(`-> Mesaj cu cod adresă în față: "${mesaj}"`);
+            console.log(`-> Mesaj cu cod adresă în față: "${mesaj}"`);
 
-            var k = mesaj.length;
+            var k = a + i;
 
             function nrSimboluriControl(k) {
                 let c = 1;
@@ -51,7 +63,7 @@
             var c = nrSimboluriControl(k);
             var n = k + c;
 
-            console.log(`-> i = ${i}; k = i+a = ${k}; c = ${c}; n = k+c = ${n}`);
+            console.log(`-> i = ${i}; a = ${a}; k = i+a = ${k}; c = ${c}; n = k+c = ${n}`);
 
             var mesajVector = [];
 
@@ -245,8 +257,8 @@
         }
 
         console.log('>>> Codul Hamming <<<');
-        console.log('Funcția care stă la dispoziția utilizatorului este "hamming(int numarCanal, string mesaj, int pozitiaIronata)".');
-        console.log('Exemplu de utilizare: "hamming(4, \'00110\', 2)"');
+        console.log('Funcția care stă la dispoziția utilizatorului este "hamming(int nrMaximCanale, int numarCanal, string mesaj, int pozitiaIronata)".');
+        console.log('Exemplu de utilizare: "hamming(7, 4, \'00110\', 2)"');
 
     </script>
 </body>
